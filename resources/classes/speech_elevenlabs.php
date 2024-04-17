@@ -20,7 +20,7 @@ class speech_elevenlabs implements speech_interface {
 		$this->voice = "";
 		$this->path = "";
 		$this->message = "";
-		$this->format = "";
+		$this->format = "mp3";
 		$this->filename = "";
 		//build the setting object and get the recording path
 		$this->api_key = $settings->get('speech', 'api_key');
@@ -101,7 +101,27 @@ class speech_elevenlabs implements speech_interface {
 
 		// save the audio file
 		if ($http_code == 200) {
-			file_put_contents($this->path.'/'.$this->filename, $response);
+			//get the file and path details
+			$path_array = pathinfo($this->filename);
+
+			//save the file as an mp3
+			file_put_contents($this->path.'/'.$path_array['filename'].'.mp3', $response);
+
+			//find the location of sox
+			$command = 'which sox';
+			$sox = system($command);
+
+			//use sox to convert mp3 to wav
+			if (file_exists($this->path.'/'.$path_array['filename'].'.mp3')) {
+				$command = $sox . " '".$this->path."/".$path_array['filename'].".mp3' -r 44100 -b 16 '".$this->path."/".$path_array['filename'].".wav'";
+				system($command);
+			}
+
+			//delete the extra file
+			if (file_exists($this->path.'/'.$path_array['filename'].'.wav')) {
+				unlink($this->path.'/'.$path_array['filename'].'.mp3');
+			}
+
 			return true;
 		}
 		return false;
