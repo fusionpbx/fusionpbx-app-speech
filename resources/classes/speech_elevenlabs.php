@@ -51,6 +51,11 @@ class speech_elevenlabs implements speech_interface {
 		//get the model automatically
 		$model_id = $this->get_model();
 
+		//if model is version 1 replace it with version 2
+		if ($model_id == 'eleven_multilingual_v1') {
+			$model_id = 'eleven_multilingual_v2';
+		}
+
 		// set the request URL
 		$url = 'https://api.elevenlabs.io/v1/text-to-speech/' . $this->voice;
 
