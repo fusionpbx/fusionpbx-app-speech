@@ -172,6 +172,8 @@ class speech_elevenlabs implements speech_interface {
 			CURLOPT_TIMEOUT => 30,
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => "GET",
+			CURLOPT_CUSTOMREQUEST => "GET",
+			CURLOPT_HTTPHEADER => $headers,
 		]);
 
 		$response = curl_exec($curl);
@@ -232,6 +234,7 @@ class speech_elevenlabs implements speech_interface {
 				CURLOPT_TIMEOUT => 30,
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST => "GET",
+				CURLOPT_HTTPHEADER => $headers,
 			]);
 			$response = curl_exec($curl);
 			$error = curl_error($curl);
