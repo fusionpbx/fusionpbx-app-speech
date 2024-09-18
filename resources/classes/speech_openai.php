@@ -13,6 +13,7 @@ if (!class_exists('ai_openai')) {
 		 * declare private variables
 		 */
 		private $api_key;
+		private $api_url;
 		private $path;
 		private $filename;
 		private $format;
@@ -27,6 +28,7 @@ if (!class_exists('ai_openai')) {
 
 			//build the setting object and get the recording path
 			$this->api_key = $settings->get('speech', 'api_key');
+			$this->api_url = $settings->get('speech', 'api_url', '');
 
 		}
 
@@ -153,9 +155,6 @@ if (!class_exists('ai_openai')) {
 		 */
 		public function speech() : bool {
 
-			// set the request URL
-			$url = 'https://api.openai.com/v1/audio/speech';
-
 			// set the request headers
 			$headers = [
 				'Authorization: Bearer ' . $this->api_key,
@@ -175,7 +174,7 @@ if (!class_exists('ai_openai')) {
 			}
 
 			// initialize curl handle
-			$ch = curl_init($url);
+			$ch = curl_init($this->api_url);
 
 			// set the curl options
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
