@@ -28,7 +28,7 @@ if (!class_exists('ai_openai')) {
 
 			//build the setting object and get the recording path
 			$this->api_key = $settings->get('speech', 'api_key');
-			$this->api_url = $settings->get('speech', 'api_url', '');
+			$this->api_url = $settings->get('speech', 'api_url', 'https://api.openai.com/v1/audio/speech');
 
 		}
 
