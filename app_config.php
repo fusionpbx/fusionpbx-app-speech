@@ -36,5 +36,13 @@
 		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
 		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Text to Speech API Key";
 		$y++;
+		$apps[$x]['default_settings'][$y]['default_setting_uuid'] = "88cbe8de-de83-40ea-9362-efa6c9d4ed77";
+		$apps[$x]['default_settings'][$y]['default_setting_category'] = "speech";
+		$apps[$x]['default_settings'][$y]['default_setting_subcategory'] = "api_url";
+		$apps[$x]['default_settings'][$y]['default_setting_name'] = "text";
+		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
+		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
+		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Text to Speech API URL";
+		$y++;
 
 ?>
