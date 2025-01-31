@@ -73,10 +73,13 @@ if (!class_exists('ai_openai')) {
 		public function get_voices() : array {
 			$voices = array(
 				"alloy" => "alloy",
+				"ash" => "ash",
+				"coral" => "coral",
 				"echo" => "echo",
 				"fable" => "fable",
 				"nova" => "nova",
 				"onyx" => "onyx",
+				"sage" => "sage",
 				"shimmer" => "shimmer"
 			);
 
