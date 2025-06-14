@@ -26,7 +26,7 @@ class speech_local implements speech_interface {
 	public function __construct($settings) {
 
 		//build the setting object and get the recording path
-		$this->api_url = $settings->get('speech', 'api_url', 'https://localhost:8001/speech');
+		$this->api_url = $settings->get('speech', 'api_url', 'http://localhost:8001/speech');
 
 	}
 
