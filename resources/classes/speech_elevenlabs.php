@@ -1,8 +1,7 @@
 <?php
 
-
 /**
- * ai_elevenlabs class
+ * speech_elevenlabs class
  *
  */
 class speech_elevenlabs implements speech_interface {
@@ -260,5 +259,3 @@ class speech_elevenlabs implements speech_interface {
 		];
 	}
 }
-
-?>

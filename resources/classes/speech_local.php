@@ -1,10 +1,8 @@
 <?php
 
-
  /**
- * ai class
+ * speech_local class
  *
- * @method null download
  */
 class speech_local implements speech_interface {
 
