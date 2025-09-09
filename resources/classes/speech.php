@@ -75,6 +75,21 @@ class speech {
 	}
 
 	/**
+	 * get_format - get the file format
+	 */
+	public function get_format() : string {
+
+		//set the class interface to use the _template suffix
+		$classname = 'speech_'.$this->engine;
+
+		//create the object
+		$object = new $classname($this->settings);
+
+		//return the audio file format
+		return $object->get_format();
+	}
+
+	/**
 	 * is_translate_enabled - get whether the engine can do translations
 	 */
 	public function is_translate_enabled() : bool {
@@ -134,7 +149,6 @@ class speech {
 			if ($object instanceof speech_interface) {
 				$object->set_path($this->audio_path);
 				$object->set_filename($this->audio_filename);
-				$object->set_format($this->audio_format);
 				$object->set_voice($this->audio_voice);
 				//$object->set_model($this->audio_model);
 				//$object->set_language($this->audio_language);

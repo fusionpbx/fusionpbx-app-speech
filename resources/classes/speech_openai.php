@@ -27,6 +27,9 @@ class speech_openai implements speech_interface {
 		$this->api_key = $settings->get('speech', 'api_key');
 		$this->api_url = $settings->get('speech', 'api_url', 'https://api.openai.com/v1/audio/speech');
 
+		//set the audio file format
+		$this->format = 'wav';
+
 	}
 
 	public function set_path(string $audio_path) {
@@ -35,10 +38,6 @@ class speech_openai implements speech_interface {
 
 	public function set_filename(string $audio_filename) {
 		$this->filename = $audio_filename;
-	}
-
-	public function set_format(string $audio_format) {
-		$this->format = $audio_format;
 	}
 
 	public function set_voice(string $audio_voice) {
@@ -82,6 +81,11 @@ class speech_openai implements speech_interface {
 
 		//return the languages array
 		return $voices;
+	}
+
+	public function get_format() : string {
+		//return the audio file format
+		return $this->format;
 	}
 
 	public function get_languages() : array {
