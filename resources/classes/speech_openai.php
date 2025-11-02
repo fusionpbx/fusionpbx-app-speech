@@ -17,6 +17,8 @@ class speech_openai implements speech_interface {
 	private $voice;
 	private $message;
 	private $model;
+	private $language;
+	private $translate;
 
 	/**
 	 * called when the object is created
