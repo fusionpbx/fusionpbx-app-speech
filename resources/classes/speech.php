@@ -136,6 +136,8 @@ class speech {
 
 	/**
 	 * speech - text to speech
+	 * @param string $text - text to convert to speech
+	 * returns void
 	 */
 	public function speech() {
 		if (!empty($this->engine)) {

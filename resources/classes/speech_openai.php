@@ -188,11 +188,35 @@ class speech_openai implements speech_interface {
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
+		// set the connection timeout and the overall maximum curl run time
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+
+		// follow any "Location: " header the server sends as part of the HTTP header.
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+
+		// automatically set the Referer: field in requests where it follows a Location: redirect.
+		curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
+
+		// set whether to verify SSL peer
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
+
+		// add verbose for debugging
+		curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+		// run the curl request and get the response
+		$response = curl_exec($ch);
+
+		// get the error message
+		if ($response === false) {
+			echo "cURL Error: " . curl_error($ch);
+		}
+
 		// run the curl request and get the response
 		$response = curl_exec($ch);
 
 		// close the handle
-		curl_close($ch);
+		unset($ch);
 
 		// check for errors
 		if ($response === false) {
