@@ -63,13 +63,13 @@ if (!class_exists('speech_inworld')) {
 			//assign private variables
 				$this->app_name = 'speech';
 				$this->app_uuid = 'f9a4f42e-2e31-4c24-8da2-0d0349611e3f';
-
+				
 			//set defaults
 				$this->domain = 'api.inworld.ai'; // Inworld API domain
-
+				
 			//store settings object
 				$this->settings = $settings;
-
+				
 			//get API key from settings if available
 			//FusionPBX uses a generic 'api_key' setting that's shared across all speech providers
 				if ($settings !== null) {
@@ -142,13 +142,13 @@ if (!class_exists('speech_inworld')) {
 		public function get_voices() : array {
 			// Initialize voices array
 			$voices = [];
-
+			
 			// Only try API if we have an api_key set
 			if (!empty($this->api_key)) {
 				try {
 					// Inworld API endpoint for listing voices
 					$url = "https://api.inworld.ai/tts/v1/voices";
-
+					
 					$headers = [
 						'Authorization: Basic ' . $this->api_key,
 						'Accept: application/json'
@@ -166,12 +166,12 @@ if (!class_exists('speech_inworld')) {
 					$response = curl_exec($ch);
 					$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 					$curl_error = curl_error($ch);
-					unset($ch);
+					curl_close($ch);
 
 					// Parse successful response
 					if ($http_code == 200 && $response) {
 						$json_response = json_decode($response, true);
-
+						
 						// Inworld returns: {"voices": [{"voiceId": "...", "displayName": "...", ...}]}
 						if (isset($json_response['voices']) && is_array($json_response['voices'])) {
 							foreach ($json_response['voices'] as $voice) {
@@ -179,44 +179,31 @@ if (!class_exists('speech_inworld')) {
 								$display_name = $voice['displayName'] ?? $voice['name'] ?? $voice_id;
 								$description = $voice['description'] ?? '';
 								$languages = $voice['languages'] ?? [];
-
+								
 								// If displayName is empty, use voiceId
 								if (empty($display_name)) {
 									$display_name = $voice_id;
 								}
-
+								
 								if (!empty($voice_id)) {
-									// Build detailed voice info
-									$voice_info = $display_name;
-
-									// Add description if available
-									if (!empty($description)) {
-										$voice_info .= ' - ' . $description;
-									}
-
-									// Add language if available
-									if (!empty($languages) && is_array($languages)) {
-										$language_codes = implode(', ', $languages);
-										$voice_info .= ' (' . $language_codes . ')';
-									}
-
-									$voices[$voice_id] = $voice_info;
+									// Store structured voice data for JavaScript access
+									$voices[$voice_id] = [
+										'name' => $display_name,
+										'description' => $description,
+										'languages' => $languages
+									];
 								}
 							}
-
-							error_log("Inworld API: Successfully fetched " . count($voices) . " voices");
+							
 						}
 					} else {
-						error_log("Inworld API Error: HTTP $http_code" . ($curl_error ? " - $curl_error" : ""));
 						if ($response) {
-							error_log("Response: " . substr($response, 0, 500));
 						}
 					}
 				} catch (Exception $e) {
-					error_log("Inworld API Exception: " . $e->getMessage());
 				}
 			}
-
+			
 			// If no voices were fetched, return empty array (like ElevenLabs does)
 			// This way the dropdown will be empty if API key is invalid/missing
 			return $voices;
@@ -245,7 +232,7 @@ if (!class_exists('speech_inworld')) {
 			//prepare the API request
 				// Inworld TTS synthesize endpoint (non-streaming)
 				$url = "https://api.inworld.ai/tts/v1/voice";
-
+				
 				$headers = [
 					'Content-Type: application/json',
 					'Authorization: Basic ' . $this->api_key
@@ -278,7 +265,7 @@ if (!class_exists('speech_inworld')) {
 				$response = curl_exec($ch);
 				$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 				$curl_error = curl_error($ch);
-				unset($ch);
+				curl_close($ch);
 
 				//debug output
 				if ($this->debug) {
@@ -292,26 +279,23 @@ if (!class_exists('speech_inworld')) {
 				if ($http_code == 200 && $response) {
 					// Inworld returns JSON with base64 audio in 'audioContent' field
 					$json_response = json_decode($response, true);
-
+					
 					// Debug: log what we got
-					error_log("Inworld API response keys: " . ($json_response ? implode(', ', array_keys($json_response)) : 'NOT JSON'));
-
+					
 					if (isset($json_response['audioContent'])) {
 						// Decode base64 audio data
 						$audio_data = base64_decode($json_response['audioContent']);
-
+						
 						// Save to file
 						if (file_put_contents($this->file, $audio_data)) {
 							if ($this->debug) {
 								echo "Audio saved successfully to: " . $this->file . "\n";
 							}
-							error_log("Inworld: Audio saved successfully to " . $this->file);
 							return true;
 						} else {
 							throw new Exception("Failed to write audio file to: " . $this->file);
 						}
 					} else {
-						error_log("Inworld API response (first 500 chars): " . substr($response, 0, 500));
 						throw new Exception("No audioContent in response. Keys found: " . ($json_response ? implode(', ', array_keys($json_response)) : 'NOT JSON'));
 					}
 				} else {
@@ -334,7 +318,7 @@ if (!class_exists('speech_inworld')) {
 		/**
 		 * speech_interface implementation methods
 		 */
-
+		
 		/**
 		 * set_path - set the file path
 		 */
@@ -384,11 +368,9 @@ if (!class_exists('speech_inworld')) {
 		 */
 		public function speech() : bool {
 			try {
-				error_log("Inworld speech() called - voice: {$this->voice_id}, text: " . substr($this->text, 0, 50));
 				$this->download();
 				return true;
 			} catch (Exception $e) {
-				error_log("Inworld speech generation error: " . $e->getMessage());
 				return false;
 			}
 		}
