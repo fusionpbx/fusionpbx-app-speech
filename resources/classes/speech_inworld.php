@@ -194,13 +194,12 @@ if (!class_exists('speech_inworld')) {
 										$voice_info .= ' - ' . $description;
 									}
 
-									// Add language if available
+									// Build a multi-dimensional voices array
 									if (!empty($languages) && is_array($languages)) {
-										$language_codes = implode(', ', $languages);
-										$voice_info .= ' (' . $language_codes . ')';
+										foreach ($languages as $language_code) {
+											$voices[$language_code][$voice_id] = $voice_info;
+										}
 									}
-
-									$voices[$voice_id] = $voice_info;
 								}
 							}
 
