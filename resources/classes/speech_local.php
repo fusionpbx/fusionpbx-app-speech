@@ -17,6 +17,7 @@ class speech_local implements speech_interface {
 	private $voice;
 	private $message;
 	private $model;
+	private $speed;
 	private $language;
 	private $translate;
 
@@ -40,6 +41,10 @@ class speech_local implements speech_interface {
 		$this->filename = $audio_filename;
 	}
 
+	public function set_speed(float $audio_speed): void {
+		$this->speed = $audio_speed;
+	}
+
 	public function set_voice(string $audio_voice) {
 		$this->voice = $audio_voice;
 	}
@@ -59,6 +64,14 @@ class speech_local implements speech_interface {
 	public function is_language_enabled() : bool {
 		//return the whether engine is handles languages
 		return false;
+	}
+
+	public function is_speed_enabled() : bool {
+		return false;
+	}
+
+	public function get_speed_options() : array {
+		return [];
 	}
 
 	public function is_translate_enabled() : bool {
@@ -221,23 +234,16 @@ class speech_local implements speech_interface {
 		// set whether to verify SSL peer
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
 
-		// add verbose for debugging
-		curl_setopt($ch, CURLOPT_VERBOSE, true);
-
 		// run the curl request and get the response
 		$response = curl_exec($ch);
-
-		// get the error message
-		if ($response === false) {
-			echo "cURL Error: " . curl_error($ch);
-			exit;
-		}
+		$curl_error = curl_error($ch);
 
 		// close the handle
-		unset($ch);
+		curl_close($ch);
 
 		// check for errors
 		if ($response === false) {
+			error_log("Local TTS cURL error: " . $curl_error);
 			return false;
 		}
 		else {

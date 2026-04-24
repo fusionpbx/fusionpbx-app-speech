@@ -7,6 +7,7 @@
 class speech_elevenlabs implements speech_interface {
 
 	private $voice;
+	private $speed;
 	private $path;
 	private $message;
 	private $format;
@@ -71,6 +72,9 @@ class speech_elevenlabs implements speech_interface {
 		$data['voice_settings']['stability'] = 1;
 		$data['voice_settings']['style'] = 0;
 		$data['voice_settings']['use_speaker_boost'] = 'true';
+		if (isset($this->speed)) {
+			$data['voice_settings']['speed'] = (float)$this->speed;
+		}
 
 		// initialize curl handle
 		$ch = curl_init($url);
@@ -133,6 +137,21 @@ class speech_elevenlabs implements speech_interface {
 		return false;
 	}
 
+	public function is_speed_enabled(): bool {
+		return true;
+	}
+
+	public function get_speed_options(): array {
+		return [
+			'0.7'  => '0.7x',
+			'0.8'  => '0.8x',
+			'0.9'  => '0.9x',
+			'1.0'  => '1.0x (Normal)',
+			'1.1'  => '1.1x',
+			'1.2'  => '1.2x',
+		];
+	}
+
 	public function is_model_enabled(): bool {
 		return false;
 	}
@@ -190,6 +209,10 @@ class speech_elevenlabs implements speech_interface {
 	public function get_format() : string {
 		//return the audio file format
 		return $this->format;
+	}
+
+	public function set_speed(float $audio_speed): void {
+		$this->speed = $audio_speed;
 	}
 
 	public function set_language(string $audio_language) {
