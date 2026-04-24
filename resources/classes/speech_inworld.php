@@ -364,6 +364,27 @@ if (!class_exists('speech_inworld')) {
 		}
 
 		/**
+		 * is_speed_enabled
+		 */
+		public function is_speed_enabled() : bool {
+			return false;
+		}
+
+		/**
+		 * get_speed_options
+		 */
+		public function get_speed_options() : array {
+			return [];
+		}
+
+		/**
+		 * set_speed - set the speech speed (Inworld doesn't support speed control)
+		 */
+		public function set_speed(float $audio_speed) : void {
+			// Inworld doesn't support speed control
+		}
+
+		/**
 		 * set_model - set the model (Inworld doesn't use models, so this is a no-op)
 		 */
 		public function set_model(string $model) : void {

@@ -17,6 +17,7 @@ class speech_openai implements speech_interface {
 	private $voice;
 	private $message;
 	private $model;
+	private $speed;
 	private $language;
 	private $translate;
 
@@ -42,6 +43,10 @@ class speech_openai implements speech_interface {
 		$this->filename = $audio_filename;
 	}
 
+	public function set_speed(float $audio_speed): void {
+		$this->speed = $audio_speed;
+	}
+
 	public function set_voice(string $audio_voice) {
 		$this->voice = $audio_voice;
 	}
@@ -61,6 +66,24 @@ class speech_openai implements speech_interface {
 	public function is_language_enabled() : bool {
 		//return the whether engine is handles languages
 		return false;
+	}
+
+	public function is_speed_enabled() : bool {
+		return true;
+	}
+
+	public function get_speed_options() : array {
+		return [
+			'0.25' => '0.25x',
+			'0.5'  => '0.5x',
+			'0.75' => '0.75x',
+			'1.0'  => '1.0x (Normal)',
+			'1.25' => '1.25x',
+			'1.5'  => '1.5x',
+			'2.0'  => '2.0x',
+			'3.0'  => '3.0x',
+			'4.0'  => '4.0x',
+		];
 	}
 
 	public function is_translate_enabled() : bool {
@@ -172,6 +195,9 @@ class speech_openai implements speech_interface {
 		$data['input'] = $this->message;
 		$data['voice'] = $this->voice;
 		$data['response_format'] = 'wav';
+		if (isset($this->speed)) {
+			$data['speed'] = $this->speed;
+		}
 		if (isset($this->language)) {
 			$data['language'] = $this->language;
 		}
@@ -201,25 +227,16 @@ class speech_openai implements speech_interface {
 		// set whether to verify SSL peer
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE);
 
-		// add verbose for debugging
-		curl_setopt($ch, CURLOPT_VERBOSE, true);
-
 		// run the curl request and get the response
 		$response = curl_exec($ch);
-
-		// get the error message
-		if ($response === false) {
-			echo "cURL Error: " . curl_error($ch);
-		}
-
-		// run the curl request and get the response
-		$response = curl_exec($ch);
+		$curl_error = curl_error($ch);
 
 		// close the handle
-		unset($ch);
+		curl_close($ch);
 
 		// check for errors
 		if ($response === false) {
+			error_log("OpenAI TTS cURL error: " . $curl_error);
 			return false;
 		}
 		else {

@@ -23,6 +23,7 @@ class speech {
 	public $audio_filename;
 	public $audio_format;
 	public $audio_model;
+	public $audio_speed;
 	public $audio_voice;
 	public $audio_language;
 	public $audio_message;
@@ -105,6 +106,24 @@ class speech {
 	}
 
 	/**
+	 * is_speed_enabled - get whether the engine supports speed control
+	 */
+	public function is_speed_enabled() : bool {
+		$classname = 'speech_'.$this->engine;
+		$object = new $classname($this->settings);
+		return $object->is_speed_enabled();
+	}
+
+	/**
+	 * get_speed_options - get the engine's available speed options
+	 */
+	public function get_speed_options() : array {
+		$classname = 'speech_'.$this->engine;
+		$object = new $classname($this->settings);
+		return $object->get_speed_options();
+	}
+
+	/**
 	 * is_language_enabled - get whether the engine allows to set the language
 	 */
 	public function is_language_enabled() : bool {
@@ -152,6 +171,9 @@ class speech {
 				$object->set_path($this->audio_path);
 				$object->set_filename($this->audio_filename);
 				$object->set_voice($this->audio_voice);
+				if (isset($this->audio_speed)) {
+					$object->set_speed((float)$this->audio_speed);
+				}
 				//$object->set_model($this->audio_model);
 				//$object->set_language($this->audio_language);
 				//$object->set_translate($this->audio_translate);
