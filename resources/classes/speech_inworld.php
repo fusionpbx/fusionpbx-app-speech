@@ -49,6 +49,7 @@ if (!class_exists('speech_inworld')) {
 		public $filename;
 		public $message;
 		public $language;
+		public $model;
 		public $voice_id;
 		public $api_key;
 		public $api_secret;
@@ -96,10 +97,17 @@ if (!class_exists('speech_inworld')) {
 		}
 
 		/**
-		 * get available models (Inworld doesn't use models, return empty)
+		 * get available models
+		 *
+		 * Inworld has no list-models API endpoint (only voices), so this list is
+		 * curated. Update it here when Inworld releases or retires a model.
 		 */
 		public function get_models() : array {
-			return [];
+			return [
+				'inworld-tts-2' => 'inworld-tts-2 (newest, 100+ languages)',
+				'inworld-tts-1.5-max' => 'inworld-tts-1.5-max',
+				'inworld-tts-1.5-mini' => 'inworld-tts-1.5-mini (fastest)'
+			];
 		}
 
 		/**
@@ -250,11 +258,14 @@ if (!class_exists('speech_inworld')) {
 					'Authorization: Basic ' . $this->api_key
 				];
 
+				// Use the selected model, falling back to the newest model when none is set
+				$model = !empty($this->model) ? $this->model : 'inworld-tts-2';
+
 				// Build request data according to Inworld API spec
 				$data = [
 					'text' => $this->text,
 					'voiceId' => $this->voice_id,
-					'modelId' => 'inworld-tts-1'
+					'modelId' => $model
 				];
 
 				//debug output
@@ -385,10 +396,12 @@ if (!class_exists('speech_inworld')) {
 		}
 
 		/**
-		 * set_model - set the model (Inworld doesn't use models, so this is a no-op)
+		 * set_model - set the model (only if it is a valid, supported model)
 		 */
 		public function set_model(string $model) : void {
-			// Inworld doesn't use models, so we just ignore this
+			if (array_key_exists($model, $this->get_models())) {
+				$this->model = $model;
+			}
 		}
 
 		/**

@@ -44,5 +44,13 @@
 		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
 		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Text to Speech API URL";
 		$y++;
+		$apps[$x]['default_settings'][$y]['default_setting_uuid'] = "a1f6d4c2-7b90-4c1e-9d2a-3e5f8c0a71bd";
+		$apps[$x]['default_settings'][$y]['default_setting_category'] = "speech";
+		$apps[$x]['default_settings'][$y]['default_setting_subcategory'] = "model";
+		$apps[$x]['default_settings'][$y]['default_setting_name'] = "text";
+		$apps[$x]['default_settings'][$y]['default_setting_value'] = "";
+		$apps[$x]['default_settings'][$y]['default_setting_enabled'] = "false";
+		$apps[$x]['default_settings'][$y]['default_setting_description'] = "Text to Speech model. Leave blank to use the engine default. The available models depend on the selected engine.";
+		$y++;
 
 ?>

@@ -200,7 +200,7 @@ class speech_local implements speech_interface {
 		];
 
 		// set the http data
-		$data['model'] = 'tts-1-hd';
+		$data['model'] = !empty($this->model) ? $this->model : 'tts-1-hd';
 		$data['input'] = $this->message;
 		$data['voice'] = $this->voice;
 

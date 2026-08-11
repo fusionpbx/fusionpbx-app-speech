@@ -17,6 +17,7 @@ class speech_openai implements speech_interface {
 	private $voice;
 	private $message;
 	private $model;
+	private $models_cache;
 	private $speed;
 	private $language;
 	private $translate;
@@ -191,7 +192,7 @@ class speech_openai implements speech_interface {
 		];
 
 		// set the http data
-		$data['model'] = 'tts-1-hd';
+		$data['model'] = !empty($this->model) ? $this->model : 'tts-1-hd';
 		$data['input'] = $this->message;
 		$data['voice'] = $this->voice;
 		$data['response_format'] = 'wav';
@@ -254,9 +255,51 @@ class speech_openai implements speech_interface {
 	}
 
 	public function get_models(): array {
-		return [
-			'tts-1-hd' => 'tts-1-hd'
+
+		//return the cached list within the same request
+		if (isset($this->models_cache)) {
+			return $this->models_cache;
+		}
+
+		//the curated fallback list, used when the API is unavailable
+		$models = [
+			'tts-1-hd' => 'tts-1-hd',
+			'tts-1' => 'tts-1',
 		];
+
+		//fetch the available models from the OpenAI API; the models endpoint has no
+		//capability flag, so keep the text to speech models by matching "tts" in the id
+		if (!empty($this->api_key)) {
+			$models_url = str_replace('/audio/speech', '/models', $this->api_url);
+			$ch = curl_init($models_url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $this->api_key]);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+			$response = curl_exec($ch);
+			$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			curl_close($ch);
+			if ($http_code == 200 && !empty($response)) {
+				$json_array = json_decode($response, true);
+				$fetched = [];
+				if (!empty($json_array['data']) && is_array($json_array['data'])) {
+					foreach ($json_array['data'] as $row) {
+						$id = $row['id'] ?? '';
+						if ($id !== '' && strpos($id, 'tts') !== false) {
+							$fetched[$id] = $id;
+						}
+					}
+				}
+				if (!empty($fetched)) {
+					ksort($fetched);
+					$models = $fetched;
+				}
+			}
+		}
+
+		//cache and return
+		$this->models_cache = $models;
+		return $models;
 	}
 
 }

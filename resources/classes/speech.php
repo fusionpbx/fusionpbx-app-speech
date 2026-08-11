@@ -174,7 +174,9 @@ class speech {
 				if (isset($this->audio_speed)) {
 					$object->set_speed((float)$this->audio_speed);
 				}
-				//$object->set_model($this->audio_model);
+				if (!empty($this->audio_model)) {
+					$object->set_model($this->audio_model);
+				}
 				//$object->set_language($this->audio_language);
 				//$object->set_translate($this->audio_translate);
 				$object->set_message($this->audio_message);

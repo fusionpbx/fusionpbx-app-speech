@@ -15,6 +15,7 @@ class speech_elevenlabs implements speech_interface {
 	private $languages;
 	private $api_key;
 	private $model;
+	private $models_cache;
 
 	public function __construct($settings) {
 		//set the default values
@@ -48,8 +49,8 @@ class speech_elevenlabs implements speech_interface {
 
 	public function speech(): bool {
 
-		//get the model automatically
-		$model_id = $this->get_model();
+		//use the selected model, otherwise detect the model automatically
+		$model_id = !empty($this->model) ? $this->model : $this->get_model();
 
 		//if model is version 1 replace it with version 2
 		if ($model_id == 'eleven_multilingual_v1') {
@@ -264,12 +265,58 @@ class speech_elevenlabs implements speech_interface {
 	}
 
 	public function get_models(): array {
-		return [
+
+		//return the cached list within the same request
+		if (isset($this->models_cache)) {
+			return $this->models_cache;
+		}
+
+		//the curated fallback list, used when the API is unavailable
+		$models = [
 			'eleven_monolingual_v1' => 'Default',
 			'eleven_turbo_v1' => 'Eleven Turbo v1',
 			'eleven_turbo_v2' => 'Eleven Turbo v2',
 			'eleven_multilingual_v1' => 'Eleven Multilingual v1',
 			'eleven_multilingual_v2' => 'Eleven Multilingual v2',
 		];
+
+		//fetch the available models from the ElevenLabs API and keep the ones that can do text to speech
+		if (!empty($this->api_key)) {
+			$headers = [
+				'Content-Type: application/json',
+				"xi-api-key: $this->api_key",
+			];
+			$curl = curl_init();
+			curl_setopt_array($curl, [
+				CURLOPT_URL => 'https://api.elevenlabs.io/v1/models',
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_TIMEOUT => 5,
+				CURLOPT_CONNECTTIMEOUT => 3,
+				CURLOPT_HTTPHEADER => $headers,
+			]);
+			$response = curl_exec($curl);
+			$http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+			curl_close($curl);
+			if ($http_code == 200 && !empty($response)) {
+				$json_array = json_decode($response, true);
+				//the endpoint returns either a bare array or a {"models": [...]} wrapper
+				$list = $json_array['models'] ?? $json_array;
+				$fetched = [];
+				if (is_array($list)) {
+					foreach ($list as $row) {
+						if (!empty($row['can_do_text_to_speech']) && !empty($row['model_id'])) {
+							$fetched[$row['model_id']] = $row['name'] ?? $row['model_id'];
+						}
+					}
+				}
+				if (!empty($fetched)) {
+					$models = $fetched;
+				}
+			}
+		}
+
+		//cache and return
+		$this->models_cache = $models;
+		return $models;
 	}
 }
