@@ -29,6 +29,12 @@ class speech_local implements speech_interface {
 		//use the settings object get method
 		$this->api_url = $settings->get('speech', 'api_url', 'http://localhost:8001/speech');
 
+		//limit the url to http or https so the setting cannot be used to read local files or reach other protocols
+		if (!preg_match('#^https?://#i', (string)$this->api_url)) {
+			error_log("Local TTS invalid api_url: " . var_export($this->api_url, true));
+			$this->api_url = '';
+		}
+
 		//set the audio file format
 		$this->format = 'wav';
 	}
@@ -194,6 +200,12 @@ class speech_local implements speech_interface {
 	 */
 	public function speech() : bool {
 
+		//ensure the api url is valid before making the request
+		if (empty($this->api_url)) {
+			error_log("Local TTS: no valid api_url set.");
+			return false;
+		}
+
 		// set the request headers
 		$headers = [
 			'Content-Type: application/json'
@@ -224,6 +236,10 @@ class speech_local implements speech_interface {
 		// set the connection timeout and the overall maximum curl run time
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+
+		// restrict protocols to http and https, including any redirects
+		curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+		curl_setopt($ch, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
 
 		// follow any "Location: " header the server sends as part of the HTTP header.
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);

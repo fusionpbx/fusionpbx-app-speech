@@ -43,6 +43,12 @@ class speech {
 		//build the setting object and get the recording path
 		$this->api_key = $settings->get('speech', 'api_key');
 		$this->engine = $settings->get('speech', 'engine');
+
+		//limit the engine to a known value so the setting cannot be used to load an arbitrary class
+		if (!empty($this->engine) && !in_array(strtolower((string)$this->engine), ['openai', 'elevenlabs', 'local', 'inworld'], true)) {
+			error_log("Speech: invalid engine '" . $this->engine . "'");
+			$this->engine = '';
+		}
 	}
 
 	/**
